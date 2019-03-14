@@ -1,0 +1,19 @@
+set my_address = "username@gmail.com"
+set smtp_pass = "password"
+
+set imap_user = $my_address
+set imap_pass = $smtp_pass
+set smtp_url = "smtps://$imap_user@smtp.gmail.com:465/"
+set folder = "imaps://imap.gmail.com:993"
+
+set spoolfile = +INBOX
+mailboxes +INBOX
+
+set from = $my_address
+alternates $my_address
+
+set message_cachedir = ~/.cache/mutt
+set header_cache = $message_cachedir
+
+set realname = "Mr. Mutt"
+set ssl_force_tls = yes
