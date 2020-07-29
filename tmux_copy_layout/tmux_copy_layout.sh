@@ -16,8 +16,34 @@ verify_active_tmux_session() {
 	fi
 }
 
-main() {
-	verify_active_tmux_session
+# Creates a new window with the layout of the current window
+simple() {
+	local layout
+	local num_panes
+  local target
+  local first_pane
+
+  test -n "${VERBOSE-}" && printf "Getting current layout\n"
+  layout="$(tmux display-message -p '#{window_layout}')"
+  test -n "${VERBOSE-}" && printf "Layout: %s\n" "$layout"
+  num_panes="$(tmux display-message -p '#{window_panes}')"
+  test -n "${VERBOSE-}" && printf "Creating new window\n"
+  tmux new-window
+
+  test -n "${VERBOSE-}" && printf "Creating window splits\n"
+	target="$(tmux list-windows | tail -1 | sed -r 's/^([0-9]+):.*$/\1/')"
+	first_pane="$(tmux list-panes | head -1 | sed -r 's/^([0-9]+):.*$/\1/')"
+	for _ in $(seq $((num_panes - 1))); do
+		tmux split-window -t "$target.$first_pane"
+	done
+  test -n "${VERBOSE-}" && printf "Copying layout '%s' to new window\n" "$layout"
+	tmux select-layout -t "$target" "$layout"
+	tmux select-pane -t "$target.$first_pane"
+}
+
+# WORK IN PROGRESS
+# Copies the layout from one window over to a new or existing window
+interactive() {
 	local TMP_FILE="/tmp/tmux_copy_window_$(date +'%s')"
 	local MAXIMUM_WAIT_IN_SECONDS="5"
 
@@ -70,6 +96,12 @@ main() {
 	first_pane="$(tmux list-panes | head -1 | sed -r 's/^([0-9]+):.*$/\1/')"
 	tmux select-layout -t "$to" "$layout"
 	tmux select-pane -t "$to.$first_pane"
+
+}
+
+main() {
+	verify_active_tmux_session
+  simple
 }
 
 main "$@"
