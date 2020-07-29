@@ -31,8 +31,8 @@ simple() {
   tmux new-window
 
   test -n "${VERBOSE-}" && printf "Creating window splits\n"
-	target="$(tmux list-windows | tail -1 | sed -r 's/^([0-9]+):.*$/\1/')"
-	first_pane="$(tmux list-panes | head -1 | sed -r 's/^([0-9]+):.*$/\1/')"
+	target="$(tmux list-windows | tail -1 | sed 's/^\([[:digit:]]\{1,\}\):.*$/\1/')"
+	first_pane="$(tmux list-panes | head -1 | sed 's/^\([[:digit:]]\{1,\}\):.*$/\1/')"
 	for _ in $(seq $((num_panes - 1))); do
 		tmux split-window -t "$target.$first_pane"
 	done
